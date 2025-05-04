@@ -1,0 +1,37 @@
+from typing import List
+
+from sqlalchemy.orm import (
+    Mapped,
+    mapped_column, relationship
+)
+
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
+
+from app.db.base import (
+    Base,
+)
+
+class User(Base):
+    __tablename__ = 'users'
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    username: Mapped[str] = mapped_column(nullable=True)
+    email: Mapped[str] = mapped_column(nullable=False)
+    password: Mapped[str] = mapped_column(nullable=False)
+
+    products: Mapped[List['Product']] = relationship(back_populates='user')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'email': self.email,
+            'password_hash': self.password,
+            'products': [product.to_dict() for product in self.products]
+        }
+
+    def __repr__(self):
+        return f'User(id={self.id}, username={self.username}, email={self.email}), password_hash={self.password}), prducts={self.products})'
