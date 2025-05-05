@@ -4,10 +4,9 @@ import jwt
 from fastapi import HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
-from app.config.config import SECRET_KEY, ALGORITHM
+from app.config.config import SECRET_KEY, ALGORITHM, STATUS_CODE
 from app.db.models import User
 from app.db.queries import get_user_by_username
-from app.validation.pydantic_classes import TokenData
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
@@ -37,12 +36,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
             raise credentials_exception
     except InvalidTokenError:
         raise credentials_exception
-    user = get_user_by_username(username=username)
-    if user is None:
-        raise credentials_exception
+    try:
+        user = get_user_by_username(username=username)
+    except ValueError as error:
+        raise HTTPException(status_code=STATUS_CODE.get(str(error).lower()), detail=str(error))
     return User(id=user.get("id"),
                 username=user.get("username"),
                 email=user.get("email"),
                 password=user.get("password"),
                 products=user.get("products")
-                )
+    )

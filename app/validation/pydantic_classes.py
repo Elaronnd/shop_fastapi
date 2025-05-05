@@ -1,5 +1,13 @@
-from typing import Union
-from pydantic import BaseModel, Field, EmailStr
+from typing import Union, Annotated
+from pydantic import BaseModel, Field, EmailStr, BeforeValidator
+
+def strip_and_lower(v: object) -> str:
+    return str(v).strip().lower()
+
+email_str_validator = Annotated[
+    EmailStr,
+    BeforeValidator(strip_and_lower)
+]
 
 class Login(BaseModel):
     username: str = Field(..., min_length=1, max_length=100, title="Username", description="Your username")
@@ -13,7 +21,7 @@ class Login(BaseModel):
                           pattern=r"[A-Za-z0-9@#$%^&+=]{5,35}")
 
 class Register(Login):
-    email: EmailStr = Field(..., title="Email", description="Your email address")
+    email: email_str_validator = Field(..., title="Email", description="Your email address")
 
 class User(Register):
     pass

@@ -1,48 +1,49 @@
-from pydantic import EmailStr
-
-from fastapi import  (
-    HTTPException
-)
-
 from app.db.base import (
     Session
 )
-
 from app.db.models import (
     User
 )
+from app.validation.pydantic_classes import email_str_validator
 
-def register_user(username: str, password: str, email: EmailStr) -> None:
+
+def is_email_in_db(email: email_str_validator) -> bool:
     with Session() as session:
-        user = session.query(User).filter_by(username=username).one_or_none()
+        email = session.query(User).filter_by(email=email).one_or_none()
+        if not email:
+            return False
+        return True
+
+
+def register_user(username: str, password: str, email: email_str_validator) -> None:
+    with Session() as session:
+        user = session.query(User).filter_by(username=username.lower()).one_or_none()
 
         if user:
-            raise HTTPException(status_code=409, detail='User already exists')
+            raise ValueError("User already exists")
+        elif is_email_in_db(email=email):
+            raise ValueError("This email already registered")
 
-        user = User(username=username, password=password, email=email)
+        user = User(username=username.lower(), password=password.lower(), email=email)
         session.add(user)
         session.commit()
 
-def login_user(username: str, password: str) -> bool:
+
+def get_password_by_username(username: str) -> User.password:
     with Session() as session:
-        user = session.query(User).filter_by(username=username).one_or_none()
+        user = session.query(User).filter_by(username=username.lower()).one_or_none()
 
         if not user:
-            raise HTTPException(status_code=404, detail='User not found')
+            raise ValueError('User not found')
 
-        if user.password != password:
-            raise HTTPException(status_code=400, detail='Invalid password')
+        return user.password
 
-        return True
 
 def get_user_by_username(username: str) -> dict:
     with Session() as session:
-        user = session.query(User).filter_by(username=username).one_or_none()
+        user = session.query(User).filter_by(username=username.lower()).one_or_none()
 
     if not user:
-        raise HTTPException(status_code=404, detail='User not found')
+        raise ValueError('User not found')
 
     return user.to_dict()
-
-
-
