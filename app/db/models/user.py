@@ -29,9 +29,9 @@ class User(Base):
             'id': self.id,
             'username': self.username,
             'email': self.email,
-            'password_hash': self.password,
+            'password': self.password,
             'products': [product.to_dict() for product in self.products]
         }
 
     def __repr__(self):
-        return f'User(id={self.id}, username={self.username}, email={self.email}), password_hash={self.password}), prducts={self.products})'
+        return f'User(id={self.id}, username={self.username}, email={self.email}), password={self.password}), products={self.products})'

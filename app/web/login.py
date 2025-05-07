@@ -5,7 +5,7 @@ from app.db.queries import get_password_by_username, register_user
 from app.utils.jwt_user import create_access_token, get_current_user
 from app.validation.pydantic_classes import (
     Login,
-    User,
+    UserData,
     Register,
     Token
 )
@@ -20,7 +20,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 @login_router.post("/register", response_model=Token)
 async def register(user: Register):
-    password_hash = pwd_context.hash(user.password)
+    password_hash = pwd_context.hash(user.password.lower())
     try:
         register_user(username=user.username.lower(), password=password_hash, email=user.email)
     except ValueError as error:
@@ -40,13 +40,13 @@ async def login(user: Login):
     except ValueError as error:
         raise HTTPException(status_code=STATUS_CODE.get(str(error).lower()), detail=str(error))
 
-    if not pwd_context.verify(user.password, user_password):
+    if not pwd_context.verify(user.password.lower(), user_password):
         raise HTTPException(status_code=400, detail='Invalid password')
 
     access_token = create_access_token(data={"sub": user.username.lower()})
     return Token(access_token=access_token, token_type="bearer")
 
 
-@login_router.get("/profile", response_model=User)
-async def read_users_me(current_user: User = Depends(get_current_user)):
+@login_router.get("/profile", response_model=UserData)
+async def read_users_me(current_user: UserData = Depends(get_current_user)):
     return current_user

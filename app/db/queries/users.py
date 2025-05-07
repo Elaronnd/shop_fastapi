@@ -24,7 +24,7 @@ def register_user(username: str, password: str, email: email_str_validator) -> N
         elif is_email_in_db(email=email):
             raise ValueError("This email already registered")
 
-        user = User(username=username.lower(), password=password.lower(), email=email)
+        user = User(username=username.lower(), password=password, email=email)
         session.add(user)
         session.commit()
 
@@ -43,7 +43,7 @@ def get_user_by_username(username: str) -> dict:
     with Session() as session:
         user = session.query(User).filter_by(username=username.lower()).one_or_none()
 
-    if not user:
-        raise ValueError('User not found')
+        if not user:
+            raise ValueError('User not found')
 
-    return user.to_dict()
+        return user.to_dict()

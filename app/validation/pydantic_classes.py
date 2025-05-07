@@ -23,8 +23,11 @@ class Login(BaseModel):
 class Register(Login):
     email: email_str_validator = Field(..., title="Email", description="Your email address")
 
-class User(Register):
-    pass
+class UserData(BaseModel):
+    username: str = Field(..., min_length=1, max_length=100, title="Username", description="Your username")
+    password: str = Field(..., title="Password", description="Your password in hash")
+    email: email_str_validator = Field(..., title="Email", description="Your email address")
+    products: list = Field(..., title="Products", description="List of products")
 
 class Token(BaseModel):
     access_token: str
