@@ -175,3 +175,4 @@ cython_debug/
 
 app/config/config.yml
 shop.db
+app/static/images/*

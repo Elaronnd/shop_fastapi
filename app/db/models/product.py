@@ -1,18 +1,13 @@
+from app.db.base import Base
 from sqlalchemy import (
-    ForeignKey
+    ForeignKey,
+    TEXT
 )
-
 from sqlalchemy.orm import (
     Mapped,
     mapped_column,
     relationship
 )
-
-from app.db.base import (
-    Base,
-)
-
-import base64
 
 class Product(Base):
     __tablename__ = 'products'
@@ -21,7 +16,7 @@ class Product(Base):
     title: Mapped[str] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(nullable=False)
     price: Mapped[float] = mapped_column(nullable=False)
-    image: Mapped[bytes] = mapped_column(nullable=False)
+    images: Mapped[list[str]] = mapped_column(TEXT, nullable=True)
 
     category_id: Mapped[int] = mapped_column(ForeignKey('categories.id'), nullable=False)
     category: Mapped['Category'] = relationship(back_populates='products')
@@ -35,10 +30,10 @@ class Product(Base):
             'title': self.title,
             'description': self.description,
             'price': self.price,
-            'image': base64.b64encode(self.image).decode('utf-8'),
+            'images': self.images,
             'category_id': self.category_id,
             'user_id': self.user_id,
         }
 
     def __repr__(self):
-        return f'Product(id={self.id}, title={self.title}, description={self.description}, price={self.price}),category_id={self.category_id}, user_id={self.user_id})'
+        return f'Product(id={self.id}, title={self.title}, description={self.description}, price={self.price}), images={self.images}, category_id={self.category_id}, user_id={self.user_id})'

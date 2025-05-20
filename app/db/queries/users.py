@@ -1,3 +1,4 @@
+from app.db import Product
 from app.db.base import (
     Session
 )
@@ -39,7 +40,7 @@ def get_password_by_username(username: str) -> User.password:
         return user.password
 
 
-def get_user_by_username(username: str) -> dict:
+def get_user_by_username(username: str) -> User.to_dict:
     with Session() as session:
         user = session.query(User).filter_by(username=username.lower()).one_or_none()
 
@@ -47,3 +48,42 @@ def get_user_by_username(username: str) -> dict:
             raise ValueError('User not found')
 
         return user.to_dict()
+
+def get_user_by_id(user_id: int):
+    with Session() as session:
+        user = session.query(User).filter_by(id=user_id).one_or_none()
+
+        if not user:
+            raise ValueError('User not found')
+
+        return user.to_dict()
+
+
+def add_product_user(
+    user_id: int,
+    product: Product
+) -> None:
+    with Session() as session:
+        user = session.query(User).filter_by(id=user_id).one_or_none()
+
+        if not user:
+            raise ValueError('User not found')
+
+        user.products.append(product)
+        session.add(user)
+        session.commit()
+
+
+def remove_product_user(
+    user_id: int,
+    product_id: int
+) -> None:
+    with Session() as session:
+        user = session.query(User).filter_by(id=user_id).one_or_none()
+
+        if not user:
+            raise ValueError('User not found')
+
+        for product in user.products:
+            if product.id == product_id:
+                user.products.remove(product)

@@ -7,18 +7,18 @@ from app.validation.pydantic_classes import (
     Login,
     UserData,
     Register,
-    Token
+    Token, UserResponse
 )
 from app.config.config import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     STATUS_CODE
 )
 
-login_router = APIRouter()
+user_router = APIRouter()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-@login_router.post("/register", response_model=Token)
+@user_router.post("/user/register", response_model=Token, tags=["v1/user"])
 async def register(user: Register):
     password_hash = pwd_context.hash(user.password.lower())
     try:
@@ -33,7 +33,7 @@ async def register(user: Register):
     return Token(access_token=access_token, token_type="bearer")
 
 
-@login_router.post("/login", response_model=Token)
+@user_router.post("/user/login", response_model=Token, tags=["v1/user"])
 async def login(user: Login):
     try:
         user_password = get_password_by_username(username=user.username.lower())
@@ -47,6 +47,10 @@ async def login(user: Login):
     return Token(access_token=access_token, token_type="bearer")
 
 
-@login_router.get("/profile", response_model=UserData)
+@user_router.get("/user/profile", response_model=UserResponse, tags=["v1/user"])
 async def read_users_me(current_user: UserData = Depends(get_current_user)):
-    return current_user
+    return UserResponse(
+        username=current_user.username,
+        email=current_user.email,
+        products=current_user.products
+    )

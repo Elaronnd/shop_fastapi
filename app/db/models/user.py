@@ -1,17 +1,9 @@
 from typing import List
-
+from app.db.base import Base
 from sqlalchemy.orm import (
     Mapped,
-    mapped_column, relationship
-)
-
-from werkzeug.security import (
-    generate_password_hash,
-    check_password_hash
-)
-
-from app.db.base import (
-    Base,
+    mapped_column,
+    relationship
 )
 
 class User(Base):

@@ -3,14 +3,8 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship
 )
-
-from typing import (
-    List
-)
-
-from app.db.base import (
-    Base
-)
+from typing import List
+from app.db.base import Base
 
 class Category(Base):
     __tablename__ = 'categories'
