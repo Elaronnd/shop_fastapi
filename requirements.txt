@@ -10,3 +10,4 @@ uvicorn~=0.34.2
 ngrok~=1.4.0
 python-multipart~=0.0.20
 pillow~=11.2.1
+MarkupSafe~=3.0.2
