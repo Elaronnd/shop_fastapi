@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from app.web.v1.users import users_router
 from app.web.v1.products import products_router
-from app.web.v1.websocket import websockets_router
+from app.web.v1.websockets import websockets_router
 from app.web.v1.images import images_router
 
 app_v1 = APIRouter(prefix="/v1")
