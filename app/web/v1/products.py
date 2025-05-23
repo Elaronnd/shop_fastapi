@@ -24,7 +24,7 @@ from app.config.config import (
     STATUS_CODE
 )
 
-product_router = APIRouter()
+products_router = APIRouter()
 
 
 def product_form_parser(
@@ -37,7 +37,7 @@ def product_form_parser(
     return Product(title=title, description=description, price=price, category_id=category_id)
 
 
-@product_router.get("/products", status_code=200, response_model=list[ProductResponse], tags=["v1/products"])
+@products_router.get("/products", status_code=200, response_model=list[ProductResponse], tags=["v1/products"])
 async def all_products(
     request: Request,
     min_price: int = Query(default=0, title="Min price", description="Min price of product", le=1000000),
@@ -53,8 +53,14 @@ async def all_products(
 
     for product in products:
         try:
-            images = [f"https://{request.url.hostname}/image/{os.path.basename(images_name)}" for images_name in
-                      product.images]
+            images = [
+                (
+                    f"{request.url.scheme}://{request.url.hostname}"
+                    f"{'' if request.url.port in [80, 443] else f':{request.url.port}'}"
+                    f"/image/{os.path.basename(images_name)}"
+                )
+                for images_name in product.images
+            ]
         except TypeError:
             images = []
         list_products.append(
@@ -70,7 +76,7 @@ async def all_products(
     return list_products
 
 
-@product_router.post("/product", status_code=202, response_model=ProductResponse, tags=["v1/products"])
+@products_router.post("/products", status_code=202, response_model=ProductResponse, tags=["v1/products"])
 async def create_product(
     request: Request,
     background_tasks: BackgroundTasks,
@@ -134,7 +140,7 @@ async def create_product(
     )
 
 
-@product_router.delete("/product/{product_id}", tags=["v1/products"])
+@products_router.delete("/products/{product_id}", tags=["v1/products"])
 async def delete_product(
     background_tasks: BackgroundTasks,
     product_id: int = Path(..., title="Product id", description="Id of product in db"),
@@ -162,7 +168,7 @@ async def delete_product(
     return Response(status_code=204, background=background_tasks)
 
 
-@product_router.get("/product/{product_id}", response_model=ProductResponse, tags=["v1/products"])
+@products_router.get("/products/{product_id}", response_model=ProductResponse, tags=["v1/products"])
 async def get_product(
     request: Request,
     product_id: int = Path(..., title="Product id", description="Id of product in db")
@@ -175,10 +181,10 @@ async def get_product(
         raise HTTPException(status_code=STATUS_CODE.get(str(error).lower()), detail=str(error))
 
     return ProductResponse(
-        id=product.id,
-        title=product.title,
-        description=product.description,
-        price=product.price,
-        images=[f"{request.url.scheme}://{request.url.hostname}{'' if request.url.port in [80, 443] else f':{request.url.port}'}/image/{os.path.basename(images_name)}" for images_name in product.images],
-        category_id=product.category_id
+        id=product.get("id"),
+        title=product.get("title"),
+        description=product.get("description"),
+        price=product.get("price"),
+        images=[f"{request.url.scheme}://{request.url.hostname}{'' if request.url.port in [80, 443] else f':{request.url.port}'}/image/{os.path.basename(images_name)}" for images_name in product.get("images")],
+        category_id=product.get("category_id")
     )

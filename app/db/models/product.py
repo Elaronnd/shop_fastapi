@@ -1,3 +1,5 @@
+import json
+
 from app.db.base import Base
 from sqlalchemy import (
     ForeignKey,
@@ -30,10 +32,10 @@ class Product(Base):
             'title': self.title,
             'description': self.description,
             'price': self.price,
-            'images': self.images,
+            'images': json.loads(self.images),
             'category_id': self.category_id,
             'user_id': self.user_id,
         }
 
     def __repr__(self):
-        return f'Product(id={self.id}, title={self.title}, description={self.description}, price={self.price}), images={self.images}, category_id={self.category_id}, user_id={self.user_id})'
+        return f'Product(id={self.id}, title={self.title}, description={self.description}, price={self.price}), images={json.loads(self.images)}, category_id={self.category_id}, user_id={self.user_id})'

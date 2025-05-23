@@ -6,9 +6,9 @@ from app.utils.os_files import remove_image_file
 from app.validation.pydantic_classes import UserData
 from fastapi.responses import FileResponse, Response
 
-image_router = APIRouter()
+images_router = APIRouter()
 
-@image_router.get("/image/{filename}", response_class=FileResponse, tags=["v1/image"])
+@images_router.get("/images/{filename}", response_class=FileResponse, tags=["v1/image"])
 async def read_image(
     filename: str
 ):
@@ -17,7 +17,7 @@ async def read_image(
     return f"app/static/images/{filename}"
 
 
-@image_router.delete("/image/{filename}", tags=["v1/image"])
+@images_router.delete("/images/{filename}", tags=["v1/image"])
 async def delete_image(
     filename: str,
     background_tasks: BackgroundTasks,

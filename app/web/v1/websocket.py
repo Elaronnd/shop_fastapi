@@ -9,13 +9,13 @@ from app.db.queries import (
 )
 from typing import Dict
 
-websocket_router = APIRouter()
+websockets_router = APIRouter()
 
 
 active_chats: Dict[str, WebSocket] = {}
 
 
-@websocket_router.websocket("/chat/{id_product}")
+@websockets_router.websocket("/chats/{id_product}")
 async def chat(
         websocket: WebSocket,
         id_product: int,
